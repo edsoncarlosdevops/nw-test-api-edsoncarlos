@@ -5,7 +5,7 @@ app = Flask(__name__)
 # Rota principal
 @app.route('/')
 def home():
-    return "API is running :)"
+    return "API is running :) :) o7"
 
 # Rota de health check
 @app.route('/health')
