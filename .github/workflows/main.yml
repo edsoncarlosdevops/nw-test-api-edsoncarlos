@@ -1,5 +1,6 @@
 name: Update Docker Container and Provision AWS
 
+# O workflow será executado quando houver um push na branch master
 on:
   push:
     branches:
@@ -10,49 +11,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Passo 1: Fazer o checkout do código do repositório
-    - uses: actions/checkout@v4
+    # Passo 1: Checkout do código do repositório
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    # Passo 2: Logar no Docker Hub (usar credenciais armazenadas no GitHub Secrets)
+    # Passo 2: Login no Docker Hub
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # Passo 3: Instalar Docker, AWS CLI e Terraform se necessário
-    - name: Install necessary tools (Docker, AWS CLI, Terraform)
+    # Passo 3: Instalar o Docker (caso não esteja instalado)
+    - name: Install Docker
       run: |
-        sudo apt-get update
         if ! command -v docker &> /dev/null; then
+          sudo apt-get update
           sudo apt-get install -y docker.io
         fi
+
+    # Passo 4: Build da imagem Docker com as alterações no app.py
+    - name: Build Docker image
+      run: docker build --no-cache -t edsoncarlos/edsoncarlos-nw-test-api:latest .
+
+    # Passo 5: Push da nova imagem Docker para o Docker Hub
+    - name: Push Docker image
+      run: docker push edsoncarlos/edsoncarlos-nw-test-api:latest
+
+    # Passo 6: Remover o contêiner antigo (caso ele esteja rodando)
+    - name: Remove old container
+      run: |
+        if [ $(docker ps -q -f name=edsoncarlos-nw-container) ]; then
+          docker stop edsoncarlos-nw-container
+          docker rm edsoncarlos-nw-container
+        fi
+
+    # Passo 7: Iniciar o novo contêiner com a imagem atualizada
+    - name: Start new container
+      run: |
+        docker run -d --name edsoncarlos-nw-container -p 5000:5000 edsoncarlos/edsoncarlos-nw-test-api:latest
+
+    # Passo 8: Instalar o AWS CLI (caso não esteja instalado)
+    - name: Install AWS CLI
+      run: |
         if ! command -v aws &> /dev/null; then
+          sudo apt-get update
           sudo apt-get install -y awscli
         fi
+
+    # Passo 9: Instalar o Terraform (caso não esteja instalado)
+    - name: Install Terraform
+      run: |
         if ! command -v terraform &> /dev/null; then
+          sudo apt-get update
           sudo apt-get install -y software-properties-common
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
           sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
           sudo apt-get update && sudo apt-get install terraform
         fi
 
-    # Passo 4: Buildar a nova imagem Docker e fazer o push para o Docker Hub
-    - name: Build and push Docker image
-      run: |
-        docker build --no-cache -t edsoncarlos/edsoncarlos-nw-test-api:latest .
-        docker push edsoncarlos/edsoncarlos-nw-test-api:latest
-
-    # Passo 5: Remover o contêiner antigo (se estiver rodando) e iniciar o novo
-    - name: Update running container
-      run: |
-        if [ $(docker ps -q -f name=edsoncarlos-nw-container) ]; then
-          docker stop edsoncarlos-nw-container
-          docker rm edsoncarlos-nw-container
-        fi
-        docker run -d --name edsoncarlos-nw-container -p 5000:5000 edsoncarlos/edsoncarlos-nw-test-api:latest
-
-    # Passo 6: Configurar as credenciais da AWS
+    # Passo 10: Configurar as credenciais da AWS
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -60,17 +78,17 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1  # Altere para a sua região, se necessário
 
-    # Passo 7: Inicializar o Terraform
+    # Passo 11: Inicializar o Terraform
     - name: Initialize Terraform
       run: terraform init
       working-directory: ./infra  # Caminho para o diretório onde está o seu código Terraform
 
-    # Passo 8: Aplicar a configuração do Terraform
-    - name: Apply Terraform configuration
+    # Passo 12: Aplicar a configuração Terraform (provisionar na AWS)
+    - name: Apply Terraform
       run: terraform apply -auto-approve
-      working-directory: ./infra
+      working-directory: ./infra  # Caminho para o diretório onde está o seu código Terraform
 
-    # Passo 9 (opcional): Destruir a infraestrutura ao final, se necessário
+    # Passo 13: Limpeza (opcional) - Destruir a infraestrutura ao final (pode ser comentado)
     # - name: Destroy infrastructure
     #   run: terraform destroy -auto-approve
-    #   working-directory: ./infra
+    #   working-directory: ./infra  # Caminho para o diretório onde está o código Terraform
