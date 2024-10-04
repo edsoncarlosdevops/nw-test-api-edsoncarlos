@@ -61,11 +61,12 @@ cd nw-test-api-edsoncarlos
 
 Certifique-se de adicionar os seguintes secrets no GitHub Actions:
 
+```
 AWS_ACCESS_KEY_ID: Chave de acesso para sua conta AWS.
-AWS_SECRET_ACCESS_KEY:Chave secreta da AWS.
+AWS_SECRET_ACCESS_KEY: Chave secreta da AWS.
 DOCKERHUB_USERNAME: Seu nome de usuário do Docker Hub.
 DOCKERHUB_TOKEN: Seu token de autenticação do Docker Hub.
-
+```
 
 **Executar o CI/CD**
 Faça um push ou pull request na branch master e o GitHub Actions iniciará o workflow de deploy.
