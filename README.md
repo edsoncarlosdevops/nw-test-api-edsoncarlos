@@ -76,6 +76,7 @@ terraform {
 ## Passos para Subir a Aplicação
 
 **Clone ou faca um fork do repositório no github**
+
  ```
 git clone https://github.com/edsoncarlosdevops/nw-test-api-edsoncarlos.git
 cd nw-test-api-edsoncarlos
@@ -93,6 +94,7 @@ DOCKERHUB_TOKEN: Seu token de autenticação do Docker Hub.
 ```
 
 **Executar o CI/CD**
+
 Faça um push ou pull request na branch **master** e o GitHub Actions iniciará o workflow de deploy.
 Após o build, a API será acessível no DNS gerado pelo ALB na AWS.
 
