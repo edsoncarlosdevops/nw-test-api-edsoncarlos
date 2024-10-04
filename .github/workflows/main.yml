@@ -12,58 +12,47 @@ jobs:
     steps:
     # Passo 1: Fazer o checkout do código do repositório
     - uses: actions/checkout@v4
+
+    # Passo 2: Logar no Docker Hub (usar credenciais armazenadas no GitHub Secrets)
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # Passo 2: Instalar o AWS CLI (caso não esteja instalado)
-    - name: Install AWS CLI
+    # Passo 3: Instalar Docker, AWS CLI e Terraform se necessário
+    - name: Install necessary tools (Docker, AWS CLI, Terraform)
       run: |
-        if ! command -v aws &> /dev/null; then
-          sudo apt-get update
-          sudo apt-get install -y awscli
-        fi
-
-    # Passo 3: Instalar o Docker (caso não esteja instalado)
-    - name: Install Docker
-      run: |
+        sudo apt-get update
         if ! command -v docker &> /dev/null; then
-          sudo apt-get update
           sudo apt-get install -y docker.io
         fi
-
-    # Passo 4: Instalar o Terraform (caso não esteja instalado)
-    - name: Install Terraform
-      run: |
+        if ! command -v aws &> /dev/null; then
+          sudo apt-get install -y awscli
+        fi
         if ! command -v terraform &> /dev/null; then
-          sudo apt-get update
           sudo apt-get install -y software-properties-common
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
           sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
           sudo apt-get update && sudo apt-get install terraform
         fi
-      
 
-    # Passo 6: Fazer o pull da imagem mais recente do Docker Hub
-    - name: Pull latest Docker image
-      run: docker pull edsoncarlos/edsoncarlos-nw-test-api:latest
+    # Passo 4: Buildar a nova imagem Docker e fazer o push para o Docker Hub
+    - name: Build and push Docker image
+      run: |
+        docker build --no-cache -t edsoncarlos/edsoncarlos-nw-test-api:latest .
+        docker push edsoncarlos/edsoncarlos-nw-test-api:latest
 
-    # Passo 7: Remover o contêiner antigo (caso ele esteja rodando)
-    - name: Remove old container
+    # Passo 5: Remover o contêiner antigo (se estiver rodando) e iniciar o novo
+    - name: Update running container
       run: |
         if [ $(docker ps -q -f name=edsoncarlos-nw-container) ]; then
           docker stop edsoncarlos-nw-container
           docker rm edsoncarlos-nw-container
         fi
+        docker run -d --name edsoncarlos-nw-container -p 5000:5000 edsoncarlos/edsoncarlos-nw-test-api:latest
 
-    # Passo 8: Iniciar o novo contêiner com a imagem atualizada
-#    - name: Start new container
-#      run: |
-#        docker run -d --name edsoncarlos-nw-container -p 5000:5000 edsoncarlos/edsoncarlos-nw-test-api:latest
-
-    # Passo 9: Configurar as credenciais da AWS
+    # Passo 6: Configurar as credenciais da AWS
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -71,17 +60,17 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1  # Altere para a sua região, se necessário
 
-    # Passo 10: Inicializar o Terraform
+    # Passo 7: Inicializar o Terraform
     - name: Initialize Terraform
       run: terraform init
       working-directory: ./infra  # Caminho para o diretório onde está o seu código Terraform
 
-    # Passo 11: Aplicar a configuração Terraform (provisionar na AWS)
-    - name: Apply Terraform
+    # Passo 8: Aplicar a configuração do Terraform
+    - name: Apply Terraform configuration
       run: terraform apply -auto-approve
-      working-directory: ./infra  # Caminho para o diretório onde está o seu código Terraform
+      working-directory: ./infra
 
-    # Passo 12: Limpeza (opcional) - Destruir a infraestrutura ao final
+    # Passo 9 (opcional): Destruir a infraestrutura ao final, se necessário
     # - name: Destroy infrastructure
     #   run: terraform destroy -auto-approve
-    #   working-directory: ./infra  # Caminho para o diretório onde está o código Terraform
+    #   working-directory: ./infra
