@@ -1,0 +1,43 @@
+name: Destroy Infrastructure
+
+# Definir quando o workflow será acionado
+on:
+  push:
+    branches:
+      - delete
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Fazer o checkout do código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Passo 2: Configurar as credenciais da AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Altere para a sua região, se necessário
+
+      # Passo 3: Instalar o Terraform
+      - name: Install Terraform
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install terraform
+
+      # Passo 4: Inicializar o Terraform
+      - name: Initialize Terraform
+        run: terraform init
+        working-directory: ./infra  # Caminho para o diretório onde está o código Terraform
+
+      # Passo 5: Destruir a infraestrutura
+      - name: Destroy Terraform Infrastructure
+        run: terraform destroy -auto-approve
+        working-directory: ./infra  # Caminho para o diretório onde está o código Terraform
