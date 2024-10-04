@@ -1,6 +1,6 @@
 # nw-test-api-edsoncarlos
 Test interview - New Way
-![Texto Alternativo](https://drive.google.com/file/d/1l0kJsntsp7uIqdxoq-RSJF0lkBeSSuGG/view?usp=sharing)
+![nw-api-test-edsoncarlos drawio](https://github.com/user-attachments/assets/34ccd5a4-d78b-46f4-b2f5-a5db252cda5c)
 Este repositório contém uma API simples construída em Python, que é provisionada automaticamente usando Terraform e AWS ECS (Fargate), com pipelines configurados para CI/CD através do GitHub Actions.
 
 ## Arquitetura
