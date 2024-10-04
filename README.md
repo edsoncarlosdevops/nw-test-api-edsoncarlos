@@ -49,34 +49,37 @@ A infraestrutura provisionada pode ser destruída automaticamente ao realizar um
 	4.	Conta no Docker Hub.
 	5.	GitHub Actions configurado com Secrets para as credenciais AWS e Docker Hub.
 
-Passos para Subir a Aplicação
+## Passos para Subir a Aplicação
 
-	1.	Clone o Repositório
+**Clone o Repositório**
  ```
 git clone https://github.com/edsoncarlosdevops/nw-test-api-edsoncarlos.git
 cd nw-test-api-edsoncarlos
 ```
 
-	2.	Configure os Segredos no GitHub Actions
+**Configure os Segredos no GitHub Actions**
+
 Certifique-se de adicionar os seguintes secrets no GitHub Actions:
-	•	AWS_ACCESS_KEY_ID: Chave de acesso para sua conta AWS.
-	•	AWS_SECRET_ACCESS_KEY:Chave secreta da AWS.
-	•	DOCKERHUB_USERNAME: Seu nome de usuário do Docker Hub.
-	•	DOCKERHUB_TOKEN: Seu token de autenticação do Docker Hub.
+
+AWS_ACCESS_KEY_ID: Chave de acesso para sua conta AWS.
+AWS_SECRET_ACCESS_KEY:Chave secreta da AWS.
+DOCKERHUB_USERNAME: Seu nome de usuário do Docker Hub.
+DOCKERHUB_TOKEN: Seu token de autenticação do Docker Hub.
 
 
-	3.	Executar o CI/CD
-	•	Faça um push ou pull request na branch master e o GitHub Actions iniciará o workflow de deploy.
-	•	Após o build, a API será acessível no DNS gerado pelo ALB na AWS.
+**Executar o CI/CD**
+Faça um push ou pull request na branch master e o GitHub Actions iniciará o workflow de deploy.
+Após o build, a API será acessível no DNS gerado pelo ALB na AWS.
 
  
-	4.	estar a API
+**Testar a API**
+
 Acesse a URL da API gerada pelo Application Load Balancer na AWS.
  ```
 curl http://<alb-dns>/  # Substitua pelo DNS do ALB
 ```
-5.	Destruir a Infraestrutura
-	•	Faça um push na branch cleanup para destruir toda a infraestrutura criada com Terraform.
+**Destruir a Infraestrutura**
+Faça um push na branch cleanup para destruir toda a infraestrutura criada com Terraform.
 
  ```
 curl http://localhost:5000
