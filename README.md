@@ -117,6 +117,7 @@ terraform destroy -auto-approve
 
 
 **O que poderia ser implementado para refatorar e melhorar a entrega do codigo e seguranca**
+
 Uma melhoria significativa que poderia ser implementada no projeto seria a adoção de uma imagem Distroless para o Docker. Isso reduziria a quantidade de camadas desnecessárias e aumentaria a segurança da aplicação, já que imagens distroless contêm apenas as dependências essenciais para a execução da aplicação, diminuindo a superfície de ataque.
 
 Além disso, seria interessante adicionar uma etapa no pipeline de CI/CD para analisar a imagem Docker usando o Trivy. O Trivy é uma ferramenta que faz a varredura em busca de vulnerabilidades nos pacotes e bibliotecas usados na imagem, garantindo que a aplicação atenda a padrões de segurança antes de ser implantada.
