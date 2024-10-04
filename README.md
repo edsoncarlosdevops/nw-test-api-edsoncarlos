@@ -41,7 +41,7 @@ A infraestrutura provisionada pode ser destruída automaticamente ao realizar um
 
 3. Backend
 
-Para salvar os arquivos de estado do backend **terraform.tfstate** e necessario que ja exista um bucket e descreva ele no ditetorio intra/backend, definindo tambem o diretorio onde sera versionado:
+Para salvar os arquivos de estado do backend **terraform.tfstate** e necessario que ja exista um bucket e descreva ele no ditetorio intra/backend.tf, definindo tambem o diretorio onde sera versionado:
 
  ```
 terraform {
