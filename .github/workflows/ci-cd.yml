@@ -1,0 +1,57 @@
+name: Update Docker Container and Provision AWS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Passo 1: Fazer o checkout do código do repositório
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Passo 2: Logar no Docker Hub (opcional, caso use imagens privadas)
+    - name: Log into Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    # Passo 3: Fazer o pull da imagem mais recente do Docker Hub
+    - name: Pull latest Docker image
+      run: docker pull edsoncarlos/edsoncarlos-nw-test-api:latest
+
+    # Passo 4: Remover o contêiner antigo (caso ele esteja rodando)
+    - name: Remove old container
+      run: |
+        if [ $(docker ps -q -f name=edsoncarlos-nw-container) ]; then
+          docker stop edsoncarlos-nw-container
+          docker rm edsoncarlos-nw-container
+        fi
+
+    # Passo 5: Iniciar o novo contêiner com a imagem atualizada
+#    - name: Start new container
+#      run: |
+#        docker run -d --name edsoncarlos-nw-container -p 5000:5000 edsoncarlos/edsoncarlos-nw-test-api:latest
+
+    # Passo 6: Configurar o Terraform para provisionamento na AWS
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.5.7  # Coloque a versão que você está utilizando
+
+    # Passo 7: Inicializar o Terraform
+    - name: Initialize Terraform
+      run: terraform init
+      working-directory: ./infra  # Caminho para o diretório onde está o seu código Terraform
+
+    # Passo 8: Aplicar a configuração Terraform (provisionar na AWS)
+    - name: Apply Terraform
+      run: terraform apply -auto-approve
+      working-directory: ./infra  # Caminho para o diretório onde está o seu código Terraform
+
+    # Passo 9: Limpeza (opcional) - Destruir a infraestrutura ao final
+    # - name: Destroy infrastructure
+    #   run: terraform destroy -auto-approve
+    #   working-directory: ./infra  # Caminho para o diretório onde está o código Terraform
