@@ -39,28 +39,6 @@ Toda vez que uma mudança é feita na branch master, o workflow do GitHub Action
 
 A infraestrutura provisionada pode ser destruída automaticamente ao realizar um push em uma branch específica (definida como **delete** no workflow). Isso garante que os recursos da AWS sejam removidos corretamente, evitando custos desnecessários.
 
-3. Backend
-
-Para salvar os arquivos de estado do backend **terraform.tfstate** e necessario que ja exista um bucket e descreva ele no ditetorio intra/backend.tf, definindo tambem o diretorio onde sera versionado:
-
- ```
-terraform {
-  backend "s3" {
-    bucket  = "nw-test-edsoncarlos-terraform-state"  # Nesse caso, vc pode criar e adicionar o bucket aqui
-    region  = "us-east-1"
-    key     = "ecs-fargate/terraform.tfstate"  # Diretorio onde o arquivo de estado sera guardado e versionado dentro do bucket
-    encrypt = true
-  }
-  required_version = ">=0.13.0"
-  required_providers {
-    aws = {
-      version = ">= 2.7.0"
-      source  = "hashicorp/aws"
-    }
-  }
-}
-
-```
  
 
 ## Como Usar Este Repositório
@@ -91,6 +69,29 @@ AWS_ACCESS_KEY_ID: Chave de acesso para sua conta AWS.
 AWS_SECRET_ACCESS_KEY: Chave secreta da AWS.
 DOCKERHUB_USERNAME: Seu nome de usuário do Docker Hub.
 DOCKERHUB_TOKEN: Seu token de autenticação do Docker Hub.
+```
+
+**Obs do Backend**
+
+Para salvar os arquivos de estado do backend **terraform.tfstate** e necessario que ja exista um bucket e descreva ele no ditetorio intra/backend.tf, definindo tambem o diretorio onde sera versionado:
+
+ ```
+terraform {
+  backend "s3" {
+    bucket  = "nw-test-edsoncarlos-terraform-state"  # Nesse caso, vc pode criar e adicionar o bucket aqui
+    region  = "us-east-1"
+    key     = "ecs-fargate/terraform.tfstate"  # Diretorio onde o arquivo de estado sera guardado e versionado dentro do bucket
+    encrypt = true
+  }
+  required_version = ">=0.13.0"
+  required_providers {
+    aws = {
+      version = ">= 2.7.0"
+      source  = "hashicorp/aws"
+    }
+  }
+}
+
 ```
 
 **Executar o CI/CD**
