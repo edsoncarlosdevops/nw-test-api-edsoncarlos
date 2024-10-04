@@ -68,7 +68,9 @@ Certifique-se de adicionar os seguintes secrets no GitHub Actions:
 	3.	Executar o CI/CD
 	•	Faça um push ou pull request na branch master e o GitHub Actions iniciará o workflow de deploy.
 	•	Após o build, a API será acessível no DNS gerado pelo ALB na AWS.
-	4.	**Testar a API**
+
+ 
+	4.	estar a API
 Acesse a URL da API gerada pelo Application Load Balancer na AWS.
  ```
 curl http://<alb-dns>/  # Substitua pelo DNS do ALB
