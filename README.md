@@ -100,7 +100,7 @@ Verifique se a API está rodando:
 curl http://localhost:5000
 ```
 
-Comandos Terraform
+**Comandos Terraform**
 
 Para provisionar manualmente:
  ```
@@ -115,5 +115,14 @@ cd infra
 terraform destroy -auto-approve
 ```
 
+
+**O que poderia ser implementado para refatorar e melhorar a entrega do codigo e seguranca**
+Uma melhoria significativa que poderia ser implementada no projeto seria a adoção de uma imagem Distroless para o Docker. Isso reduziria a quantidade de camadas desnecessárias e aumentaria a segurança da aplicação, já que imagens distroless contêm apenas as dependências essenciais para a execução da aplicação, diminuindo a superfície de ataque.
+
+Além disso, seria interessante adicionar uma etapa no pipeline de CI/CD para analisar a imagem Docker usando o Trivy. O Trivy é uma ferramenta que faz a varredura em busca de vulnerabilidades nos pacotes e bibliotecas usados na imagem, garantindo que a aplicação atenda a padrões de segurança antes de ser implantada.
+
+Outro ponto a ser considerado é a migração da execução do ECS para subnets privadas, aumentando a segurança, já que a aplicação ficaria isolada da internet pública, acessível apenas por meio de um Load Balancer ou Gateway NAT.
+
+Por fim, ao invés de utilizar o Docker Hub, uma melhoria seria fazer o push da imagem Docker para o ECR (Elastic Container Registry) da AWS. Isso integraria de maneira mais eficiente com o ECS e proporcionaria um controle mais granular de permissões e gerenciamento das imagens, além de melhorar a integração e segurança geral do processo de deploy.
 
 
